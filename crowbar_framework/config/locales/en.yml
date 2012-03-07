@@ -113,6 +113,7 @@ en:
         memory: Memory
         cpu: CPU
         number_of_drives: Disk Drives
+        number_of_internal_drives: Internal Drives
         description: Description
         roles: Roles
         barclamps: Barclamps
