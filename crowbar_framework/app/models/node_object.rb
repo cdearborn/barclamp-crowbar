@@ -14,6 +14,9 @@
 #
 # Author: RobHirschfeld
 #
+
+require 'disk_object'
+
 class NodeObject < ChefObject
   extend CrowbarOffline
 
@@ -700,6 +703,34 @@ class NodeObject < ChefObject
 
   def hardware
     @node["dmi"].nil? ? I18n.t('unknown') : @node["dmi"].system.product_name
+  end
+
+  def number_of_internal_drives
+    get_internal_disks.length rescue 0
+  end
+
+  def internal_drives
+    drive_text = ""
+    get_internal_disks.each do |internal_disk|
+      drive_text << internal_disk.name << ", "
+    end
+  end
+
+  def get_internal_disks
+    # The resulting list of possible OS drives
+    internal_disks = Array.new
+
+    # Get the complete list of disks
+    test_disks = Barclamp.Inventory.list_disks( self )
+
+    # Keep only the OS disks
+    test_disks.each do |test_disk|
+      if test_disk.is_internal_disk?( self.crowbar["deployer"]["internal_disk_config"] )
+        internal_disks << test_disk
+      end
+    end
+
+    os_disks
   end
 
   def raid_set
