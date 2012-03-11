@@ -54,10 +54,6 @@ class Disk
   end
 
   def is_internal_disk?( internal_disk_config )
-    # Check to see if the driver type of the disk controller is in our config
-    internal_disk_config["driver_types"].each do |driver_type|
-      return true if @driver_type.casecmp( driver_type ) == 0
-    end
 
     # Check to see if the vendor ID/device ID of the disk controller is in our config
     internal_disk_config["pci_ids"].each do |pci_id|
@@ -65,6 +61,22 @@ class Disk
           @device_id.casecmp( pci_id["device_id"] ) == 0
     end
 
+    # Check to see if the driver type of the disk controller is in our config
+    internal_disk_config["driver_types"].each do |driver_type|
+      return true if @driver_type.casecmp( driver_type ) == 0
+    end
+
     false
+  end
+
+  def self.list_disks(node)
+    answer = []
+
+    node[:crowbar][:disks].each do |disk_name, disk_data|
+      disk_config = node.crowbar_ohai[:disk_config][disk_name]
+      answer << Disk.new(disk_name, disk_data, disk_config)
+    end unless node[:crowbar][:disks].nil?
+
+    answer
   end
 end
