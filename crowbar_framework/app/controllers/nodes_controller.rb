@@ -227,6 +227,8 @@ class NodesController < ApplicationController
     begin
       @node.bios_set = params[:bios]
       @node.raid_set = params[:raid]
+      @node.installation_drives_set = params[:installation_drives]
+      @node.software_raid_set = params[:software_raid]
       @node.alias = params[:alias]
       @node.group = params[:group]
       @node.description = params[:description]
