@@ -26,13 +26,8 @@
     = dl_item(t('model.attributes.node.hardware'), @node.hardware)
     = dl_item(t('model.attributes.node.cpu'), @node.cpu)
     = dl_item(t('model.attributes.node.memory'), format_memory(@node.memory))
-    = dl_item(t('model.attributes.node.number_of_drives'), "#{@node.number_of_drives}, #{t('.raid')}: #{t('raid.'+@node.raid_set)}")
-
-
+    = dl_item(t('model.attributes.node.number_of_drives'), "#{@node.number_of_front_drives}, #{t('.raid')}: #{t('raid.'+@node.raid_set)}")
     = dl_item(t('model.attributes.node.number_of_internal_drives'), "#{@node.number_of_internal_drives}")
-    = dl_item("Internal Drives:", "#{@node.internal_drives}")
-
-
     = dl_item(t('model.attributes.node.asset_tag'), @node.asset_tag)
 
 .clear
