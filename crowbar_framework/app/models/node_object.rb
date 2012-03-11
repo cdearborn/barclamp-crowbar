@@ -705,15 +705,12 @@ class NodeObject < ChefObject
     @node["dmi"].nil? ? I18n.t('unknown') : @node["dmi"].system.product_name
   end
 
-  def number_of_internal_drives
-    get_internal_disks.length rescue 0
+  def number_of_front_drives
+    number_of_drives - number_of_internal_drives
   end
 
-  def internal_drives
-    drive_text = ""
-    get_internal_disks.each do |internal_disk|
-      drive_text << internal_disk.name << ", "
-    end
+  def number_of_internal_drives
+    get_internal_disks.length rescue 0
   end
 
   def get_internal_disks
@@ -721,16 +718,18 @@ class NodeObject < ChefObject
     internal_disks = Array.new
 
     # Get the complete list of disks
-    test_disks = Barclamp.Inventory.list_disks( self )
+    test_disks = Disk.list_disks( self )
+
+    deployer_config_role = RoleObject.find_role_by_name "deployer-config-default"
+    # TBD: is this right???
+    internal_disk_config = deployer_config_role.default_attributes["deployer"]["internal_disk_config"]
 
     # Keep only the OS disks
     test_disks.each do |test_disk|
-      if test_disk.is_internal_disk?( self.crowbar["deployer"]["internal_disk_config"] )
-        internal_disks << test_disk
-      end
+      internal_disks << test_disk if test_disk.is_internal_disk?( internal_disk_config )
     end
 
-    os_disks
+    internal_disks
   end
 
   def raid_set
@@ -759,6 +758,50 @@ class NodeObject < ChefObject
     return nil if self.crowbar["crowbar"].nil?
     self.crowbar["crowbar"]["hardware"] = {} if self.crowbar["crowbar"]["hardware"].nil?
     self.crowbar["crowbar"]["hardware"]["bios_set"] = value unless value===NOT_SET
+  end
+
+  def installation_drives_set
+    # If this attr has never been set, then return a value based on the number of internal drives
+    if self.crowbar["crowbar"].nil? ||
+        self.crowbar["crowbar"]["hardware"].nil? ||
+        self.crowbar["crowbar"]["hardware"]["installation_drives_set"].nil?
+      if self.number_of_internal_drives == 0
+        return "FrontDrives"
+      else
+        return "InternalDrives"
+      end
+    end
+
+    self.crowbar["crowbar"]["hardware"]["installation_drives_set"]
+  end
+
+  def installation_drives_set=(value)
+    return nil if @role.nil?
+    return nil if self.crowbar["crowbar"].nil?
+    self.crowbar["crowbar"]["hardware"] = {} if self.crowbar["crowbar"]["hardware"].nil?
+    self.crowbar["crowbar"]["hardware"]["installation_drives_set"] = value
+  end
+
+  def software_raid_set
+    # If this attr has never been set, then return a value based on the number of internal drives
+    if self.crowbar["crowbar"].nil? ||
+        self.crowbar["crowbar"]["hardware"].nil? ||
+        self.crowbar["crowbar"]["hardware"]["software_raid_set"].nil?
+      if self.number_of_internal_drives > 1
+        return "Raid1"
+      else
+        return "None"
+      end
+    end
+
+    self.crowbar["crowbar"]["hardware"]["software_raid_set"]
+  end
+
+  def software_raid_set=(value)
+    return nil if @role.nil?
+    return nil if self.crowbar["crowbar"].nil?
+    self.crowbar["crowbar"]["hardware"] = {} if self.crowbar["crowbar"]["hardware"].nil?
+    self.crowbar["crowbar"]["hardware"]["software_raid_set"] = value
   end
 
   def to_hash
