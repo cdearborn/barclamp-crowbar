@@ -177,6 +177,8 @@ en:
       save: Save
       raid: RAID
       bios: BIOS
+      installation_drives: Drives to install on
+      software_raid: Software RAID
       save_node_success: Node saved successfully
       allocate_node_success: Node allocated successfully
       alias: Alias
