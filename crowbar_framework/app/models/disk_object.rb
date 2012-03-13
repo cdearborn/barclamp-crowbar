@@ -16,9 +16,10 @@
 #
 
 class Disk
-  attr_reader :name, :model, :removable, :rev, :size, :state, :timeout, :usage, :vendor, :vendor_id, :device_id, :driver_type
+  attr_reader :basename, :name, :model, :removable, :rev, :size, :state, :timeout, :usage, :vendor, :vendor_id, :device_id, :driver_type
 
   def initialize(disk_name, disk_data, disk_config)
+    @basename = disk_name
     @name = "/dev/#{disk_name}"
     @model = disk_data["model"] || "Unknown"
     @removable = disk_data["removable"] != "0"

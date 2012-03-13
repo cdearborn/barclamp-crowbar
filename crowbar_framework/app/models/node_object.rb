@@ -19,6 +19,10 @@ require 'disk_object'
 
 class NodeObject < ChefObject
   extend CrowbarOffline
+  FrontDrives = "FrontDrives"
+  InternalDrives = "InternalDrives"
+  Raid1 = "Raid1"
+  NoRaid = "None"
 
   def self.find(search)
     answer = []
@@ -714,8 +718,15 @@ class NodeObject < ChefObject
   end
 
   def get_internal_disks
-    # The resulting list of possible OS drives
-    internal_disks = Array.new
+    get_disks( true )
+  end
+
+  def get_front_disks
+    get_disks( false )
+  end
+
+  def get_disks( internal )
+    disks = Array.new
 
     # Get the complete list of disks
     test_disks = Disk.list_disks( self )
@@ -724,12 +735,17 @@ class NodeObject < ChefObject
     # TBD: is this right???
     internal_disk_config = deployer_config_role.default_attributes["deployer"]["internal_disk_config"]
 
-    # Keep only the OS disks
     test_disks.each do |test_disk|
-      internal_disks << test_disk if test_disk.is_internal_disk?( internal_disk_config )
+      if( internal )
+        # Keep only the internal disks
+        disks << test_disk if test_disk.is_internal_disk?( internal_disk_config )
+      else
+        # Keep only the front disks
+        disks << test_disk if !test_disk.is_internal_disk?( internal_disk_config )
+      end
     end
 
-    internal_disks
+    disks
   end
 
   def raid_set
@@ -766,9 +782,9 @@ class NodeObject < ChefObject
         self.crowbar["crowbar"]["hardware"].nil? ||
         self.crowbar["crowbar"]["hardware"]["installation_drives_set"].nil?
       if self.number_of_internal_drives == 0
-        return "FrontDrives"
+        return FrontDrives
       else
-        return "InternalDrives"
+        return InternalDrives
       end
     end
 
@@ -788,9 +804,9 @@ class NodeObject < ChefObject
         self.crowbar["crowbar"]["hardware"].nil? ||
         self.crowbar["crowbar"]["hardware"]["software_raid_set"].nil?
       if self.number_of_internal_drives > 1
-        return "Raid1"
+        return Raid1
       else
-        return "None"
+        return NoRaid
       end
     end
 

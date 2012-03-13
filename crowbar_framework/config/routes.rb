@@ -65,7 +65,7 @@ ActionController::Routing::Routes.draw do |map|
   map.delete_barclamp           'crowbar/:controller/1.0/:id', :action => 'delete', :conditions => { :method => :delete }
   map.show_barclamp             'crowbar/:controller/1.0/:id', :action => 'show', :conditions => { :method => :get }
   map.versions_barclamp         'crowbar/:controller', :action => 'versions', :conditions => { :method => :get }
-  map.action_barclamp           'crowbar/:controller/1.0/:action/:id', :conditions => { :method => :post }
+  map.action_barclamp           'crowbar/:controller/1.0/:action/:id', :conditions => { :method => [:post, :get] }
   map.barclamp_index_barclamp   'crowbar', :controller => 'barclamp', :action => 'barclamp_index', :conditions => { :method => :get }
   map.barclamp_modules 'crowbar/modules/1.0', :controller => 'barclamp', :action => 'modules', :conditions => { :method => :get }
 
