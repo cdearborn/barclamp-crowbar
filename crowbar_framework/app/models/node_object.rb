@@ -731,10 +731,7 @@ class NodeObject < ChefObject
     # Get the complete list of disks
     test_disks = Disk.list_disks( self )
 
-    deployer_config_role = RoleObject.find_role_by_name "deployer-config-default"
-    # TBD: is this right???
-    internal_disk_config = deployer_config_role.default_attributes["deployer"]["internal_disk_config"]
-
+    internal_disk_config = @node["deployer"]["internal_disk_config"]
     test_disks.each do |test_disk|
       if( internal )
         # Keep only the internal disks
