@@ -83,6 +83,11 @@ class NodeObject < ChefObject
     end
     return val.nil? ? nil : NodeObject.new(val)
   end
+
+  def self.find_admin_node
+    self.find_node_by_name `hostname`.strip
+  end
+
   def self.all
     self.find nil
   end
