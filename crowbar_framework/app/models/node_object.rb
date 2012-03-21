@@ -723,11 +723,15 @@ class NodeObject < ChefObject
   end
 
   def get_internal_disks
-    get_disks( true )
+    disks = get_disks( true )
+    Rails.logger.debug "Found #{disks.length} internal disks"
+    disks
   end
 
   def get_front_disks
-    get_disks( false )
+    disks = get_disks( false )
+    Rails.logger.debug "Found #{disks.length} front disks"
+    disks
   end
 
   def get_disks( internal )
@@ -735,14 +739,17 @@ class NodeObject < ChefObject
 
     # Get the complete list of disks
     test_disks = Disk.list_disks( self )
+    Rails.logger.debug "Checking #{test_disks.length} disks"
 
     internal_disk_config = @node["deployer"]["internal_disk_config"]
     test_disks.each do |test_disk|
       if( internal )
         # Keep only the internal disks
+        Rails.logger.debug "Disk #{test_disk.name} is internal"
         disks << test_disk if test_disk.is_internal_disk?( internal_disk_config )
       else
         # Keep only the front disks
+        Rails.logger.debug "Disk #{test_disk.name} is not internal"
         disks << test_disk if !test_disk.is_internal_disk?( internal_disk_config )
       end
     end

@@ -55,18 +55,26 @@ class Disk
   end
 
   def is_internal_disk?( internal_disk_config )
+    Rails.logger.debug "Checking to see if disk #{@name} is internal.  vendor_id=#{@vendor_id}, pci_id=#{@pci_id}"
 
     # Check to see if the vendor ID/device ID of the disk controller is in our config
     internal_disk_config["pci_ids"].each do |pci_id|
-      return true if @vendor_id.casecmp( pci_id["vendor_id"] ) == 0 &&
+      if @vendor_id.casecmp( pci_id["vendor_id"] ) == 0 &&
           @device_id.casecmp( pci_id["device_id"] ) == 0
+        Rails.logger.debug "Disk #{@name} is internal due to id match"
+        return true
+      end
     end
 
     # Check to see if the driver type of the disk controller is in our config
     internal_disk_config["driver_types"].each do |driver_type|
-      return true if @driver_type.casecmp( driver_type ) == 0
+      if @driver_type.casecmp( driver_type ) == 0
+        Rails.logger.debug "Disk #{@name} is internal due to driver type match"
+        return true
+      end
     end
 
+    Rails.logger.debug "Disk #{@name} is external"
     false
   end
 
