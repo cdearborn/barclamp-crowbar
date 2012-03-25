@@ -16,7 +16,7 @@
 #
 
 class Disk
-  attr_reader :basename, :name, :model, :removable, :rev, :size, :state, :timeout, :usage, :vendor, :vendor_id, :device_id, :driver_type
+  attr_reader :basename, :name, :model, :removable, :rev, :size, :state, :timeout, :usage, :vendor, :vendor_id, :device_id, :driver_type, :serial_number
 
   def initialize(disk_name, disk_data, disk_config)
     @basename = disk_name
@@ -32,6 +32,7 @@ class Disk
     @vendor_id = disk_config["vendor_id"]
     @device_id = disk_config["device_id"]
     @driver_type = disk_config["driver_type"]
+    @serial_number = disk_config["serial_number"]
   end
 
   def self.size_to_bytes(s)
